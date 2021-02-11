@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import Button from "./components/button/Button";
 import Table from "./components/table";
 import {ItemType} from "./item/types";
-import api from './item/api';
+import { create, remove, update, getAll } from './item/api';
 import CreateItemForm from "./item/CreateItemForm";
 import EditItemForm from "./item/EditItemForm";
 
@@ -13,25 +13,25 @@ function App() {
 
     const handleLoad = async () => {
         console.log('load data');
-        const newItems: ItemType[] = await api.getAll()
+        const newItems: ItemType[] = await getAll()
         setItems(newItems);
     }
 
     const handleDelete = (itemId: string) => async () => {
         console.log(`Delete ${itemId}`);
-        await api.remove(itemId);
+        await remove(itemId);
         await handleLoad();
     }
 
     const handleUpdate = async (item: ItemType) => {
         setEditedItem(null);
-        await api.update(item);
+        await update(item);
         await handleLoad();
     }
 
     const handleCreate =  async (item: ItemType) => {
         setCreateFormIsVisible(false);
-        await api.create(item);
+        await create(item);
         await handleLoad();
     }
 
