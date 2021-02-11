@@ -53,6 +53,7 @@ const App = ({isOnline}: AppType)  => {
 
     return (
         <div>
+            <h1>Manual sync</h1>
             <h1>{isOnline ? 'You are online' : 'You are offline'}</h1>
             <div>
                 To sync {actions.length}
