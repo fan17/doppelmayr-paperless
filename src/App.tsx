@@ -1,15 +1,15 @@
 import React, {useState} from 'react';
 import Button from "./components/button/Button";
 import Table from "./components/table";
-import ItemForm from "./item/ItemForm";
 import {ItemType} from "./item/types";
-import {emptyItem} from "./item/constants";
 import api from './item/api';
+import CreateItemForm from "./item/CreateItemForm";
+import EditItemForm from "./item/EditItemForm";
 
 function App() {
     const [items, setItems] = useState<ItemType[]>([]);
-    const [formIsVisible, setFormIsVisible] = useState<boolean>(false);
-    const [editedItem, setEditedItem] = useState<ItemType>(emptyItem);
+    const [createFormIsVisible, setCreateFormIsVisible] = useState<boolean>(false);
+    const [editedItem, setEditedItem] = useState<ItemType|null>(null);
 
     const handleLoad = async () => {
         console.log('load data');
@@ -23,27 +23,35 @@ function App() {
         await handleLoad();
     }
 
-    const handleSave = async (item: ItemType) => {
-        console.log('save');
-        setFormIsVisible(false);
-        if (item._id) {
-            await api.update(item);
-        } else {
-            await api.create(item);
-        }
+    const handleUpdate = async (item: ItemType) => {
+        setEditedItem(null);
+        await api.update(item);
         await handleLoad();
     }
 
-    const openForm = (item: ItemType) => () => {
+    const handleCreate =  async (item: ItemType) => {
+        setCreateFormIsVisible(false);
+        await api.create(item);
+        await handleLoad();
+    }
+
+    const openEditForm = (item: ItemType) => () => {
+        setCreateFormIsVisible(false);
+        setEditedItem(null);
         setEditedItem(item);
-        setFormIsVisible(true);
+    }
+
+    const openNewForm = () => {
+        setEditedItem(null);
+        setCreateFormIsVisible(true);
     }
 
     return (
         <div>
             <Button onClick={handleLoad}>Load data</Button>
-            <Button onClick={openForm(emptyItem)}>Add item</Button>
-            {formIsVisible && <ItemForm onSubmit={handleSave} initialData={editedItem}/>}
+            <Button onClick={openNewForm}>Add item</Button>
+            {createFormIsVisible && <CreateItemForm onSubmit={handleCreate}/>}
+            {editedItem && <EditItemForm initialData={editedItem} onSubmit={handleUpdate}/>}
             <Table.Table>
                 <Table.Head>
                     <Table.Row>
@@ -61,7 +69,7 @@ function App() {
                             <Table.Cell>{item.isDone}</Table.Cell>
                             <Table.Cell>
                                 <>
-                                    <Button onClick={openForm(item)}>Edit</Button>
+                                    <Button onClick={openEditForm(item)}>Edit</Button>
                                     <Button onClick={handleDelete(item._id)}>Delete</Button>
                                 </>
                             </Table.Cell>

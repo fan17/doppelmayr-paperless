@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ItemType} from "./types";
 
 type ItemFormType = {
@@ -8,6 +8,10 @@ type ItemFormType = {
 
 const ItemForm = ({initialData, onSubmit}: ItemFormType) => {
     const [data, setData] = useState<ItemType>(initialData);
+
+    useEffect(() => {
+        setData(initialData);
+    }, [initialData])
 
     // @ts-ignore
     const handleSubmit = (event) => {
@@ -24,6 +28,7 @@ const ItemForm = ({initialData, onSubmit}: ItemFormType) => {
         // @ts-ignore
         setData({...data, isDone: option});
     }
+
 
     return (
         <form onSubmit={handleSubmit}>
