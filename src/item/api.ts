@@ -10,14 +10,6 @@ export const getAll = async () => {
     return await response.json();
 }
 
-export const create = async (item: ItemType) => {
-    return await axios.post(API_PATH, {name: item.name, isDone: item.isDone});
-}
-
-export const update = async (item: ItemType) => {
+export const update = (item: ItemType) => async () => {
     return await axios.put(`${API_PATH}/${item._id}`, {name: item.name, isDone: item.isDone});
-}
-
-export const remove = async (itemId: string) => {
-    return await axios.delete(`${API_PATH}/${itemId}`);
 }
