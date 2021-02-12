@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Button from "./components/button/Button";
 import Table from "./components/table";
 import {ItemType} from "./item/types";
 import {update, getAll} from './item/api';
 import ItemIsDoneOption from "./item/ItemIsDoneOption";
+import * as localforage from "localforage";
 
 type AppType = {
     isOnline: boolean,
@@ -14,6 +15,17 @@ type Items = {
 }
 
 type Action = () => void;
+
+
+const itemsStore = localforage.createInstance({
+    name: 'paperless',
+    storeName: "items"
+});
+
+const actionsStore = localforage.createInstance({
+    name: 'paperless',
+    storeName: "actions"
+});
 
 const App = ({isOnline}: AppType)  => {
     const [items, setItems] = useState<Items>({});
@@ -32,25 +44,64 @@ const App = ({isOnline}: AppType)  => {
     }
 
     const handleLoad = async () => {
-        console.log('load data');
         const newItems: ItemType[] = await getAll();
-        setItems(
-            newItems.reduce((result: Items, current: ItemType) => {
-                return {...result, [current._id]: current};
-            }, {})
-        );
+        const itemsById = newItems.reduce((result: Items, current: ItemType) => {
+            return {...result, [current._id]: current};
+        }, {});
+        setItems(itemsById);
+        await Promise.all(newItems.map(async newItem => await itemsStore.setItem(newItem._id, newItem)));
     }
 
     const handleChangeIsDone = (item: ItemType) => async (isDone: 'not_set' | 'no' | 'yes') => {
-        setItems({...items, [item._id]: {...item, isDone}});
+        const itemAfterChange = {...item, isDone};
+        setItems({...items, [item._id]: itemAfterChange});
 
-        const action = update({...item, isDone});
+        const action = update(itemAfterChange);
         if (isOnline) {
             await action();
         } else {
             addAction(action)
         }
     }
+
+    const initItemsFromDB = async () => {
+        let itemsFromDB: Items = {};
+        // @ts-ignore
+        const ids = await itemsStore.keys();
+
+        // @ts-ignore
+        await Promise.all(ids.map(async (id) => {
+            // @ts-ignore
+            itemsFromDB[id] = await itemsStore.getItem(id);
+        }));
+
+        setItems(itemsFromDB);
+    }
+
+
+    useEffect(() => {
+        initItemsFromDB().then(() => {});
+    }, []);
+
+    const initActionsFromDB  = async () => {
+        let actionsFromDB: {} = {};
+        // @ts-ignore
+        const ids = await actionsStore.keys();
+
+        // @ts-ignore
+        await Promise.all(ids.map(async (id) => {
+            // @ts-ignore
+            const actionString: string = await actionsStore.getItem(id);
+            // @ts-ignore
+            actionsFromDB[id] = eval(actionString);
+        }));
+
+        setActions(Object.values(actionsFromDB));
+    }
+
+    useEffect(() => {
+        initActionsFromDB().then(() => {});
+    }, []);
 
     return (
         <div>
