@@ -32,7 +32,7 @@ const Items = ({isOnline, itemsStore, actionsStore}: ItemsType) => {
 
 
     useEffect(() => {
-        initFromDB().then(r => {});
+        initFromDB().then(() => {});
     }, []);
 
     const handleChangeIsDone = (item: ItemType) => async (isDone: 'not_set' | 'no' | 'yes') => {
