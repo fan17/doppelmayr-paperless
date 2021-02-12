@@ -3,7 +3,6 @@ import Table from "../components/table";
 import ItemIsDoneOption from "./ItemIsDoneOption";
 import {ItemType} from "./types";
 import {update} from "./api";
-import localforage from "localforage";
 
 type ItemCollectionType = {
     [id: string]: ItemType,
