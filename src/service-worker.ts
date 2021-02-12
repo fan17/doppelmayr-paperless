@@ -78,3 +78,7 @@ self.addEventListener('message', (event) => {
 });
 
 // Any other custom service worker logic can go here.
+
+if ('SyncManager' in window) {
+    registration.sync.register('sync-tweets');
+}
