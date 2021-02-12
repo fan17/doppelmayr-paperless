@@ -24,10 +24,11 @@ const App = ({isOnline}: AppType)  => {
     }
 
     const sync = async () => {
-        actions.map(async (action) => {
+        await Promise.all(actions.map(async (action) => {
             await action();
-        });
+        }));
         setActions([]);
+        await handleLoad();
     }
 
     const handleLoad = async () => {
