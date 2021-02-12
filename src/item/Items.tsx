@@ -16,7 +16,6 @@ type ItemsType = {
 
 const Items = ({isOnline, itemsStore, actionsStore}: ItemsType) => {
     const [items, setItems] = useState<ItemCollectionType>({});
-
     const initFromDB = async () => {
         let itemsFromDB: ItemCollectionType = {};
         // @ts-ignore
@@ -31,8 +30,9 @@ const Items = ({isOnline, itemsStore, actionsStore}: ItemsType) => {
         setItems(itemsFromDB);
     }
 
+
     useEffect(() => {
-        initFromDB();
+        initFromDB().then(r => {});
     }, []);
 
     const handleChangeIsDone = (item: ItemType) => async (isDone: 'not_set' | 'no' | 'yes') => {
